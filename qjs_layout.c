@@ -6,14 +6,13 @@
 static JSClassID js_layout_class_id;
 
 #define GETLAY \
-lay_context *lay = JS_GetOpaque2(js, argv[0], js_layout_class_id); \
+lay_context *lay = JS_GetOpaque2(js, self, js_layout_class_id); \
 if (!lay) return JS_EXCEPTION;
 
 #define GETITEM(VAR, ARG) \
 lay_id VAR; \
 if (JS_ToUint32(js, &VAR, ARG)) return JS_EXCEPTION; \
 
-// Define the functions from the layout library as methods of the LayoutContext class
 static JSValue js_layout_context_new(JSContext *js, JSValueConst self, int argc, JSValueConst *argv) {
   lay_context *lay = js_malloc(js, sizeof(*lay));
   lay_init_context(lay);
