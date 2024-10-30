@@ -19,7 +19,7 @@ static JSValue js_layout_context_new(JSContext *js, JSValueConst self, int argc,
   lay_init_context(lay);
   JSValue obj = JS_NewObjectClass(js, js_layout_class_id);
   JS_SetOpaque(obj, lay);
-  return JS_UNDEFINED;
+  return obj;
 }
 
 static JSValue js_layout_item(JSContext *js, JSValueConst self, int argc, JSValueConst *argv) {
