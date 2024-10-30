@@ -163,44 +163,52 @@ static const JSCFunctionListEntry js_layout_funcs[] = {
   JS_CFUNC_DEF("make_context", 0, js_layout_context_new)
 };
 
-static int js_layout_init(JSContext *js, JSModuleDef *m) {
-    JS_NewClassID(&js_layout_class_id);
-    JS_NewClass(JS_GetRuntime(js), js_layout_class_id, &js_layout_class);
+JSValue js_layout_use(JSContext *js)
+{
+  JS_NewClassID(&js_layout_class_id);
+  JS_NewClass(JS_GetRuntime(js), js_layout_class_id, &js_layout_class);
 
-    JSValue proto = JS_NewObject(js);
-    JS_SetPropertyFunctionList(js, proto, js_layout_proto_funcs, sizeof(js_layout_proto_funcs) / sizeof(JSCFunctionListEntry));
-    JS_SetClassProto(js, js_layout_class_id, proto);
+  JSValue proto = JS_NewObject(js);
+  JS_SetPropertyFunctionList(js, proto, js_layout_proto_funcs, sizeof(js_layout_proto_funcs) / sizeof(JSCFunctionListEntry));
+  JS_SetClassProto(js, js_layout_class_id, proto);
 
-    JS_SetModuleExportList(js, m, js_layout_funcs, sizeof(js_layout_funcs)/sizeof(JSCFunctionListEntry));
-
-    JSValue flags = JS_NewObject(js);
-    JS_SetPropertyStr(js, flags, "row", JS_NewUint32(js, LAY_ROW));
-    JS_SetPropertyStr(js, flags, "column", JS_NewUint32(js, LAY_COLUMN));
-    JS_SetPropertyStr(js, flags, "layout", JS_NewUint32(js, LAY_LAYOUT));
-    JS_SetPropertyStr(js, flags, "flex", JS_NewUint32(js, LAY_FLEX));
-    JS_SetPropertyStr(js, flags, "wrap", JS_NewUint32(js, LAY_WRAP));
-    JS_SetPropertyStr(js, flags, "nowrap", JS_NewUint32(js, LAY_NOWRAP));
+  JSValue flags = JS_NewObject(js);
+  JS_SetPropertyStr(js, flags, "row", JS_NewUint32(js, LAY_ROW));
+  JS_SetPropertyStr(js, flags, "column", JS_NewUint32(js, LAY_COLUMN));
+  JS_SetPropertyStr(js, flags, "layout", JS_NewUint32(js, LAY_LAYOUT));
+  JS_SetPropertyStr(js, flags, "flex", JS_NewUint32(js, LAY_FLEX));
+  JS_SetPropertyStr(js, flags, "wrap", JS_NewUint32(js, LAY_WRAP));
+  JS_SetPropertyStr(js, flags, "nowrap", JS_NewUint32(js, LAY_NOWRAP));
     
-
-    JS_SetPropertyStr(js, flags, "start", JS_NewUint32(js, LAY_START));
-    JS_SetPropertyStr(js, flags, "middle", JS_NewUint32(js, LAY_MIDDLE));    
-    JS_SetPropertyStr(js, flags, "end", JS_NewUint32(js, LAY_END));
-    JS_SetPropertyStr(js, flags, "justify", JS_NewUint32(js, LAY_JUSTIFY));
+  JS_SetPropertyStr(js, flags, "start", JS_NewUint32(js, LAY_START));
+  JS_SetPropertyStr(js, flags, "middle", JS_NewUint32(js, LAY_MIDDLE));    
+  JS_SetPropertyStr(js, flags, "end", JS_NewUint32(js, LAY_END));
+  JS_SetPropertyStr(js, flags, "justify", JS_NewUint32(js, LAY_JUSTIFY));
     
-    JS_SetPropertyStr(js, flags, "left", JS_NewUint32(js, LAY_LEFT));
-    JS_SetPropertyStr(js, flags, "top", JS_NewUint32(js, LAY_TOP));
-    JS_SetPropertyStr(js, flags, "right", JS_NewUint32(js, LAY_RIGHT));
-    JS_SetPropertyStr(js, flags, "bottom", JS_NewUint32(js, LAY_BOTTOM));
-    JS_SetPropertyStr(js, flags, "hfill", JS_NewUint32(js, LAY_HFILL));
-    JS_SetPropertyStr(js, flags, "vfill", JS_NewUint32(js, LAY_VFILL));
-    JS_SetPropertyStr(js, flags, "hcenter", JS_NewUint32(js, LAY_HCENTER));
-    JS_SetPropertyStr(js, flags, "vcenter", JS_NewUint32(js, LAY_VCENTER));
-    JS_SetPropertyStr(js, flags, "center", JS_NewUint32(js, LAY_CENTER));    
-    JS_SetPropertyStr(js, flags, "fill", JS_NewUint32(js, LAY_FILL));
-    JS_SetPropertyStr(js, flags, "break", JS_NewUint32(js, LAY_BREAK));
-    JS_SetModuleExport(js, m, "flags", flags);
+  JS_SetPropertyStr(js, flags, "left", JS_NewUint32(js, LAY_LEFT));
+  JS_SetPropertyStr(js, flags, "top", JS_NewUint32(js, LAY_TOP));
+  JS_SetPropertyStr(js, flags, "right", JS_NewUint32(js, LAY_RIGHT));
+  JS_SetPropertyStr(js, flags, "bottom", JS_NewUint32(js, LAY_BOTTOM));
+  JS_SetPropertyStr(js, flags, "hfill", JS_NewUint32(js, LAY_HFILL));
+  JS_SetPropertyStr(js, flags, "vfill", JS_NewUint32(js, LAY_VFILL));
+  JS_SetPropertyStr(js, flags, "hcenter", JS_NewUint32(js, LAY_HCENTER));
+  JS_SetPropertyStr(js, flags, "vcenter", JS_NewUint32(js, LAY_VCENTER));
+  JS_SetPropertyStr(js, flags, "center", JS_NewUint32(js, LAY_CENTER));    
+  JS_SetPropertyStr(js, flags, "fill", JS_NewUint32(js, LAY_FILL));
+  JS_SetPropertyStr(js, flags, "break", JS_NewUint32(js, LAY_BREAK));
 
-    return 0;
+  JSValue export = JS_NewObject(js);
+  JS_SetPropertyFunctionList(js, export, js_layout_funcs, sizeof(js_layout_funcs)/sizeof(JSCFunctionListEntry));
+  JS_SetPropertyStr(js, export, "flags", flags);
+
+  return export;
+}
+
+static int js_layout_init(JSContext *js, JSModuleDef *m)
+{
+  JSValue export =js_layout_use(js);
+  JS_SetModuleExport(js, m, "default", export);
+  return 0;
 }
 
 #ifdef JS_SHARED_LIBRARY
@@ -212,8 +220,7 @@ static int js_layout_init(JSContext *js, JSModuleDef *m) {
 JSModuleDef *JS_INIT_MODULE(JSContext *js, const char *module_name) {
     JSModuleDef *m = JS_NewCModule(js, module_name, js_layout_init);
     if (!m) return NULL;
-    JS_AddModuleExportList(js, m, js_layout_funcs, sizeof(js_layout_funcs)/sizeof(JSCFunctionListEntry));
-    JS_AddModuleExport(js, m, "flags");
+    JS_AddModuleExport(js, m, "default");
 
     return m;
 }
