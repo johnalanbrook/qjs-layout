@@ -1,6 +1,6 @@
 project('layout', 'c')
 
-quickjs = dependency('quickjs', fallback:['quickjs', 'quickjs_dep'])
+quickjs = dependency('quickjs')
 
 layout_lib = library('layout',
   'qjs_layout.c',
@@ -11,3 +11,14 @@ layout_lib = library('layout',
 qjs_layout_dep = declare_dependency(
   link_with: layout_lib,
 )
+
+lay_bench = executable('bench',
+  'benchmark_layout.c'
+)
+
+lay_test = executable('lay_test',
+  'test_layout.c'
+)
+
+test('test suite', lay_test)
+benchmark('standard bench', lay_bench)
